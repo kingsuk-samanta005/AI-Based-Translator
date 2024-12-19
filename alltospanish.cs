@@ -1,122 +1,157 @@
-using System;
+using UnityEngine;
+using TMPro;  // Required for TextMeshPro components
 using System.Collections.Generic;
 
-namespace OfflineTranslator
+public class SPA : MonoBehaviour
 {
-    class Program
+    // UI elements
+    public TMP_InputField INPUT;  // TMP_InputField for word input
+    public TextMeshProUGUI OUTPUT;  // TextMeshProUGUI for output display
+    public TMP_Dropdown languageDropdown;  // Dropdown for language selection
+
+    // Static dictionary for translations to Spanish
+    static readonly Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>
     {
-        // Dictionaries for translations
-        static Dictionary<string, string> englishToSpanish = new Dictionary<string, string>
-        {
-            {"hello", "hola"},
-            {"world", "mundo"},
-            {"how are you", "¿cómo estás?"},
-            {"good morning", "buenos días"},
-            {"good night", "buenas noches"},
-            {"thank you", "gracias"},
-            {"please", "por favor"},
-            {"yes", "sí"},
-            {"no", "no"},
-            {"goodbye", "adiós"}
-        };
-
-        static Dictionary<string, string> japaneseToSpanish = new Dictionary<string, string>
-        {
-            {"こんにちは", "hola"},
-            {"世界", "mundo"},
-            {"お元気ですか", "¿cómo estás?"},
-            {"おはようございます", "buenos días"},
-            {"おやすみなさい", "buenas noches"},
-            {"ありがとうございます", "gracias"},
-            {"お願いします", "por favor"},
-            {"はい", "sí"},
-            {"いいえ", "no"},
-            {"さようなら", "adiós"}
-        };
-
-        static Dictionary<string, string> bengaliToSpanish = new Dictionary<string, string>
-        {
-            {"হ্যালো", "hola"},
-            {"বিশ্ব", "mundo"},
-            {"আপনি কেমন আছেন", "¿cómo estás?"},
-            {"সুপ্রভাত", "buenos días"},
-            {"শুভ রাত্রি", "buenas noches"},
-            {"ধন্যবাদ", "gracias"},
-            {"অনুগ্রহ করে", "por favor"},
-            {"হ্যাঁ", "sí"},
-            {"না", "no"},
-            {"বিদায়", "adiós"}
-        };
-
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Offline Translator");
-            Console.WriteLine("Options:");
-            Console.WriteLine("1. Translate to English");
-            Console.WriteLine("2. Translate to Spanish");
-            Console.Write("Select an option: ");
-            string option = Console.ReadLine();
-
-            if (option == "1")
+        { "bengali", new Dictionary<string, string>
             {
-                TranslateTo("english");
+                {"হ্যালো", "hola"},
+                {"বিশ্ব", "mundo"},
+                {"আপনি কেমন আছেন", "¿cómo estás?"},
+                {"সুপ্রভাত", "buenos días"},
+                {"শুভ রাত্রি", "buenas noches"},
+                {"ধন্যবাদ", "gracias"},
+                {"অনুগ্রহ করে", "por favor"},
+                {"হ্যাঁ", "sí"},
+                {"না", "no"},
+                {"বিদায়", "adiós"}
             }
-            else if (option == "2")
+        },
+        { "spanish", new Dictionary<string, string>
             {
-                TranslateTo("spanish");
+                {"hola", "hola"},
+                {"mundo", "mundo"},
+                {"¿cómo estás?", "¿cómo estás?"},
+                {"buenos días", "buenos días"},
+                {"buenas noches", "buenas noches"},
+                {"gracias", "gracias"},
+                {"por favor", "por favor"},
+                {"sí", "sí"},
+                {"no", "no"},
+                {"adiós", "adiós"}
+            }
+        },
+        { "japanese", new Dictionary<string, string>
+            {
+                {"こんにちは", "hola"},
+                {"世界", "mundo"},
+                {"お元気ですか", "¿cómo estás?"},
+                {"おはようございます", "buenos días"},
+                {"おやすみなさい", "buenas noches"},
+                {"ありがとうございます", "gracias"},
+                {"お願いします", "por favor"},
+                {"はい", "sí"},
+                {"いいえ", "no"},
+                {"さようなら", "adiós"}
+            }
+        },
+        { "english", new Dictionary<string, string>
+            {
+                {"hello", "hola"},
+                {"world", "mundo"},
+                {"how are you", "¿cómo estás?"},
+                {"good morning", "buenos días"},
+                {"good night", "buenas noches"},
+                {"thank you", "gracias"},
+                {"please", "por favor"},
+                {"yes", "sí"},
+                {"no", "no"},
+                {"goodbye", "adiós"}
+            }
+        }
+    };
+
+    // Translate method to convert from any language to Spanish
+    static string TranslateToSpanish(string input, string inputLanguage)
+    {
+        if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(inputLanguage))
+        {
+            return "¡Entrada no válida!";
+        }
+
+        inputLanguage = inputLanguage.Trim().ToLower();  // Ensure no extra spaces and lowercase
+
+        // Ensure we are processing the input correctly by trimming and lowercasing
+        input = input.Trim().ToLower();  // Ensure no extra spaces and lowercase
+
+        // Check if language dictionary exists
+        if (translations.ContainsKey(inputLanguage))
+        {
+            var sourceDictionary = translations[inputLanguage];
+
+            // Check if the word exists in the dictionary
+            if (sourceDictionary.ContainsKey(input))
+            {
+                return sourceDictionary[input];
             }
         }
 
-        static void TranslateTo(string targetLanguage)
+        return "¡Traducción no encontrada!";
+    }
+
+    // Public method to trigger translation to Spanish (for button click)
+    public void SPANISH()
+    {
+        // Ensure UI elements are assigned
+        if (INPUT == null || OUTPUT == null || languageDropdown == null)
         {
-            while (true)
-            {
-                Console.WriteLine("Enter input (or type 'exit' to quit): ");
-                string input = Console.ReadLine();
-
-                if (input.ToLower() == "exit")
-                {
-                    Console.WriteLine("Exiting the translator. Goodbye!");
-                    break;
-                }
-
-                string translation = Translate(input, targetLanguage);
-
-                if (translation != null)
-                {
-                    Console.WriteLine($"Translation ({targetLanguage.ToUpper()}): {translation}");
-                }
-                else
-                {
-                    Console.WriteLine("Translation not found in the offline dictionary.");
-                }
-            }
+            Debug.LogError("UI elements are not assigned in the Unity Editor.");
+            return;
         }
 
-        static string Translate(string input, string targetLanguage)
+        // Get input word from the TMP_InputField
+        string input = INPUT.text;
+
+        if (string.IsNullOrWhiteSpace(input))
         {
-            Dictionary<string, string> sourceDictionary = null;
+            OUTPUT.text = "Por favor, ingrese una palabra para traducir.";
+            Debug.LogWarning("No input provided for translation.");
+            return;
+        }
 
-            if (targetLanguage == "english")
-            {
-                if (englishToSpanish.ContainsKey(input.ToLower()))
-                    return englishToSpanish[input.ToLower()];
-                if (japaneseToSpanish.ContainsKey(input))
-                    return japaneseToSpanish[input];
-                if (bengaliToSpanish.ContainsKey(input))
-                    return bengaliToSpanish[input];
-            }
-            else if (targetLanguage == "spanish")
-            {
-                if (japaneseToSpanish.ContainsKey(input))
-                    return japaneseToSpanish[input];
-                if (bengaliToSpanish.ContainsKey(input))
-                    return bengaliToSpanish[input];
-                if (englishToSpanish.ContainsKey(input.ToLower()))
-                    return englishToSpanish[input.ToLower()];
-            }
+        // Get the selected language from the dropdown and ensure it's lowercase and trimmed
+        string inputLanguage = languageDropdown.options[languageDropdown.value].text.Trim().ToLower();
 
-            return null;
+        // Perform the translation using the selected language to Spanish
+        string translatedText = TranslateToSpanish(input, inputLanguage);
+
+        // Update the UI with the result
+        OUTPUT.text = $"Traducción al español: {translatedText}";
+
+        // Print the result to the Unity Console
+        Debug.Log($"Traducción al español de '{input}' desde {inputLanguage} es: {translatedText}");
+    }
+
+    private void Awake()
+    {
+        // Log a warning if UI components are not assigned
+        if (INPUT == null)
+        {
+            Debug.LogWarning("INPUT is not assigned. Please assign it in the Unity Editor.");
+        }
+        if (OUTPUT == null)
+        {
+            Debug.LogWarning("OUTPUT is not assigned. Please assign it in the Unity Editor.");
+        }
+        if (languageDropdown == null)
+        {
+            Debug.LogWarning("Language Dropdown is not assigned. Please assign it in the Unity Editor.");
+        }
+
+        // Populate the language dropdown dynamically if you prefer not to set this in the Unity inspector
+        if (languageDropdown != null)
+        {
+            languageDropdown.ClearOptions();
+            languageDropdown.AddOptions(new List<string> { "Bengali", "Spanish", "Japanese", "English" });
         }
     }
 }
